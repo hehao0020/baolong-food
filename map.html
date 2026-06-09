@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>美食地图｜宝龙旭辉广场400m</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Noto Sans SC",-apple-system,PingFang SC,sans-serif;background:#0f0f1a;min-height:100vh;overflow-x:hidden}
+.header{text-align:center;padding:20px 16px 10px}
+.header h1{font-size:22px;font-weight:900;color:#fff;letter-spacing:1px}
+.header h1 .hl{background:linear-gradient(135deg,#ff6b35,#ffc832);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .sub{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.map-wrap{position:relative;width:100%;max-width:640px;margin:10px auto;padding:0 10px}
+#mapCanvas{width:100%;height:auto;border-radius:20px;background:#0f0f1a;border:1px solid rgba(255,255,255,0.06);display:block;cursor:pointer;touch-action:auto}
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 16px 8px;max-width:640px;margin:0 auto}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.5);padding:4px 10px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tooltip{position:fixed;background:rgba(15,15,26,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:12px 16px;pointer-events:none;z-index:100;max-width:260px;display:none;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+.tooltip .tt-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.tooltip .tt-addr{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:3px}
+.tooltip .tt-price{font-size:12px;color:#ff8a5c;margin-bottom:2px}
+.tooltip .tt-dishes{font-size:11px;color:rgba(255,255,255,0.35);white-space:pre-line}
+.info-panel{max-width:640px;margin:4px auto 16px;padding:0 10px}
+.info-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:14px 16px}
+.info-card h3{font-size:14px;color:rgba(255,255,255,0.6);font-weight:500;margin-bottom:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-item{text-align:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px}
+.stat-num{font-size:20px;font-weight:700;color:#fff}
+.stat-label{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.back-link{text-align:center;padding:10px 0 24px}
+.back-link a{color:rgba(255,255,255,0.35);text-decoration:none;font-size:13px}
+.back-link a:hover{color:rgba(255,255,255,0.6)}
+.area-label{position:absolute;font-size:11px;font-weight:600;color:rgba(255,255,255,0.15);pointer-events:none;text-transform:uppercase;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="header"><h1>🗺️ <span class="hl">美食地图</span></h1><div class="sub">宝龙旭辉广场400m · 109家店 · 点击店铺查看详情</div></div>
+<div class="legend">
+<div class="legend-item"><span class="legend-dot" style="background:#ff6b35"></span>宝龙旭辉广场</div>
+<div class="legend-item"><span class="legend-dot" style="background:#4ecdc4"></span>顺平路</div>
+<div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>隆昌路</div>
+<div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>隆昌路站4号口</div>
+<div class="legend-item"><span class="legend-dot" style="background:#34d399"></span>周家嘴路</div>
+<div class="legend-item"><span class="legend-dot" style="background:#f472b6"></span>控江路</div>
+</div>
+<div class="map-wrap">
+<canvas id="mapCanvas" width="640" height="580"></canvas>
+</div>
+<div class="info-panel">
+<div class="info-card">
+<h3>📊 区域统计</h3>
+<div class="stat-grid">
+<div class="stat-item"><div class="stat-num">37</div><div class="stat-label" style="color:#ff6b35">宝龙旭辉广场</div></div>
+<div class="stat-item"><div class="stat-num">13</div><div class="stat-label" style="color:#4ecdc4">顺平路</div></div>
+<div class="stat-item"><div class="stat-num">32</div><div class="stat-label" style="color:#a78bfa">隆昌路</div></div>
+<div class="stat-item"><div class="stat-num">6</div><div class="stat-label" style="color:#fb923c">隆昌路站4号口</div></div>
+<div class="stat-item"><div class="stat-num">16</div><div class="stat-label" style="color:#34d399">周家嘴路</div></div>
+<div class="stat-item"><div class="stat-num">5</div><div class="stat-label" style="color:#f472b6">控江路</div></div>
+<div class="stat-item"><div class="stat-num">109</div><div class="stat-label">总计</div></div>
+</div>
+</div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<div class="back-link"><a href="index.html">🎲 返回抽签页面</a></div>
+<script>
+var areas={'商场内':{label:'宝龙旭辉广场',color:'#ff6b35',cx:300,cy:280,shops:[{name:'和府捞面',emoji:'🐂',mx:315.0,my:280.0,price:'¥36~45',addr:'B1层 和府捞面',dishes:'草本汤排骨面\n招牌牛肉面\n番茄牛腩面'},{name:'食其家',emoji:'🐂',mx:290.0,my:291.2,price:'¥25~45',addr:'B1层 食其家',dishes:'牛丼(并盛)\n亲子丼\n麻婆豆腐饭'},{name:'小杨生煎',emoji:'🥟',mx:298.3,my:265.1,price:'¥15~28',addr:'B1层 小杨生煎',dishes:'酸辣粉\n生煎(4只)\n虾仁生煎(4只)'},{name:'大鼓米线',emoji:'🍜',mx:312.2,my:288.7,price:'¥32~42',addr:'B1层 大鼓米线',dishes:'菌菇鸡汤米线\n原味过桥米线\n肥牛米线'},{name:'杨国福麻辣烫',emoji:'🍲',mx:285.4,my:283.3,price:'¥26~32',addr:'B1层 杨国福',dishes:'麻辣拌(单人)\n自选麻辣烫\n番茄底麻辣烫'},{name:'CoCo壱番屋',emoji:'🍛',mx:316.9,my:249.4,price:'¥30~42',addr:'B1层 CoCo',dishes:'蔬菜咖喱饭\n鸡肉咖喱饭\n蛋包咖喱饭'},{name:'味千拉面',emoji:'🍜',mx:311.6,my:313.0,price:'¥18~42',addr:'B1层 味千',dishes:'日式煎饺\n味千招牌拉面\n地狱拉面(辣)'},{name:'廖记棒棒鸡',emoji:'🐔',mx:267.7,my:266.6,price:'¥22~28',addr:'B1层 廖记',dishes:'棒棒鸡(单人)\n无骨凤爪\n夫妻肺片'},{name:'久久丫',emoji:'🦆',mx:331.5,my:264.8,price:'¥12~15',addr:'B1层 久久丫',dishes:'卤藕片\n卤鸭脖'},{name:'盒马鲜生',emoji:'🐟',mx:290.3,my:313.6,price:'¥25~35',addr:'B1层 盒马',dishes:'盒马自选快餐\n海鲜炒面\n宫保鸡丁套餐'},{name:'瑞幸咖啡',emoji:'☕',mx:270.7,my:233.5,price:'¥16~19',addr:'B1层 瑞幸',dishes:'瑞幸美式\n瑞幸生椰拿铁'},{name:'快乐柠檬',emoji:'🧋',mx:354.2,my:289.2,price:'¥16~16',addr:'B1层 快乐柠檬',dishes:'快乐柠檬奶茶'},{name:'7分甜',emoji:'🥭',mx:257.0,my:314.3,price:'¥22~22',addr:'B1层 7分甜',dishes:'7分甜杨枝甘露'},{name:'一点点',emoji:'🧋',mx:303.0,my:225.1,price:'¥14~14',addr:'B1层 一点点',dishes:'一点点奶茶'},{name:'奈雪的茶',emoji:'🍊',mx:338.9,my:318.8,price:'¥29~29',addr:'B1层 奈雪',dishes:'奈雪霸气橙子'},{name:'喜茶',emoji:'🍓',mx:225.1,my:284.3,price:'¥32~32',addr:'B1层 喜茶',dishes:'喜茶芝芝莓莓'},{name:'麦当劳',emoji:'🍔',mx:346.7,my:221.3,price:'¥13~39',addr:'1层 麦当劳',dishes:'1+1随心配\n麦香鱼套餐\n板烧鸡腿堡套餐'},{name:'肯德基',emoji:'🍔',mx:312.7,my:353.9,price:'¥12~36',addr:'1层 肯德基',dishes:'蛋挞(2只)\n老北京鸡肉卷\n黄金脆皮鸡套餐'},{name:'星巴克',emoji:'☕',mx:236.4,my:240.2,price:'¥28~35',addr:'1层 星巴克',dishes:'星巴克三明治\n星巴克美式\n星巴克拿铁'},{name:'必胜客',emoji:'🍕',mx:372.0,my:259.1,price:'¥42~48',addr:'1层 必胜客',dishes:'必胜客意面\n必胜客单人披萨'},{name:'有喜屋',emoji:'🐟',mx:258.9,my:365.7,price:'¥38~58',addr:'1层 有喜屋',dishes:'牛丼套餐\n日式咖喱猪排饭\n寿司拼盘(单人)'},{name:'巴黎贝甜',emoji:'🥐',mx:263.5,my:192.3,price:'¥15~22',addr:'1层 巴黎贝甜',dishes:'巴黎贝甜面包\n巴黎贝甜三明治'},{name:'Manner Coffee',emoji:'☕',mx:389.7,my:311.2,price:'¥20~25',addr:'1层 Manner',dishes:'Manner拿铁\nManner澳白'},{name:'呷哺呷哺',emoji:'🥘',mx:217.0,my:326.1,price:'¥46~58',addr:'2层 呷哺呷哺',dishes:'菌菇锅单人\n咖喱锅单人\n番茄锅单人'},{name:'辣三多',emoji:'🌶️',mx:320.9,my:187.3,price:'¥28~42',addr:'2层 辣三多',dishes:'麻辣拌\n麻辣香锅(单人)\n香锅+米饭套餐'},{name:'萨莉亚',emoji:'🧀',mx:366.8,my:373.6,price:'¥14~28',addr:'3层 萨莉亚',dishes:'奶油蘑菇汤+面包\n芝士焗意面\n温泉蛋培根面'},{name:'鱼酷',emoji:'🐟',mx:185.7,my:267.4,price:'¥65~68',addr:'3层 鱼酷',dishes:'单人烤鱼(酸菜味)\n单人烤鱼(豆豉味)\n单人烤鱼(荔枝味)'},{name:'松鹤楼',emoji:'🦢',mx:385.6,my:203.2,price:'¥38~68',addr:'3层 松鹤楼',dishes:'苏式汤面\n蟹粉小笼\n松鼠桂鱼(单人)'},{name:'御鲜匠',emoji:'🐟',mx:300.3,my:395.0,price:'¥58~88',addr:'3层 御鲜匠',dishes:'斑鱼片\n斑鱼火锅(单人)'},{name:'淘小馆·本帮菜',emoji:'🥩',mx:214.0,my:203.6,price:'¥22~42',addr:'3层 淘小馆',dishes:'葱油拌面\n上海炒面\n狮子头饭'},{name:'泸溪河',emoji:'🥮',mx:434.1,my:264.5,price:'¥10~30',addr:'B1层 泸溪河',dishes:'桃酥\n泡芙'},{name:'KOI Thé',emoji:'🧋',mx:222.2,my:390.3,price:'¥18~28',addr:'B1层 KOI',dishes:'黄金珍奶\n芋圆奶茶'},{name:'桂源铺',emoji:'🧋',mx:269.6,my:148.5,price:'¥14~20',addr:'B1层 桂源铺',dishes:'丝袜奶茶\n冻柠茶'},{name:'太二酸菜鱼',emoji:'🐟',mx:418.4,my:344.9,price:'¥68~128',addr:'商场内',dishes:'老坛酸菜鱼'},{name:'西贝莜面村',emoji:'🍜',mx:172.7,my:325.0,price:'¥32~88',addr:'商场内',dishes:'牛肉莜面\n烤羊排'},{name:'好特卖',emoji:'🛍️',mx:358.8,my:136.6,price:'¥5~30',addr:'B1层 好特卖',dishes:'零食便餐'},{name:'名创优品',emoji:'🏪',mx:367.7,my:419.4,price:'¥0~0',addr:'商场内',dishes:''},]},'顺平路':{label:'顺平路',color:'#4ecdc4',cx:120,cy:200,shops:[{name:'顺平麻辣烫',emoji:'🍲',mx:135.0,my:200.0,price:'¥22~35',addr:'顺平路',dishes:'自选麻辣烫'},{name:'顺平面馆',emoji:'🍜',mx:110.0,my:211.2,price:'¥12~22',addr:'顺平路',dishes:'红烧牛肉面\n葱油拌面'},{name:'皖北地锅鸡',emoji:'🐔',mx:118.3,my:185.1,price:'¥38~58',addr:'顺平路',dishes:'地锅鸡单人餐'},{name:'沙县小吃（顺平）',emoji:'🍜',mx:132.2,my:208.7,price:'¥8~20',addr:'顺平路',dishes:'鸭腿饭\n蒸饺\n扁肉'},{name:'巴比馒头（顺平）',emoji:'🥖',mx:105.4,my:203.3,price:'¥3~10',addr:'顺平路',dishes:'鲜肉大包\n豆浆'},{name:'兰州拉面（顺平）',emoji:'🐂',mx:136.9,my:169.4,price:'¥20~30',addr:'顺平路',dishes:'牛肉拉面\n炒刀削'},{name:'东北饺子王',emoji:'🥟',mx:131.6,my:233.0,price:'¥16~25',addr:'顺平路',dishes:'猪肉白菜饺\n酸菜饺'},{name:'正新鸡排（顺平）',emoji:'🐔',mx:87.7,my:186.6,price:'¥10~20',addr:'顺平路',dishes:'鸡排\n烤串'},{name:'四川小炒',emoji:'🌶️',mx:151.5,my:184.8,price:'¥18~28',addr:'顺平路',dishes:'回锅肉饭\n鱼香肉丝饭'},{name:'湘味人家',emoji:'🌶️',mx:110.3,my:233.6,price:'¥22~35',addr:'顺平路',dishes:'小炒肉饭\n剁椒鱼头饭'},{name:'齐鲁人家',emoji:'🍜',mx:90.7,my:153.5,price:'¥6~15',addr:'顺平路',dishes:'山东杂粮煎饼\n韭菜盒子'},{name:'顺平烤鱼',emoji:'🐟',mx:174.2,my:209.2,price:'¥48~68',addr:'顺平路',dishes:'烤鱼单人份'},{name:'顺平黄焖鸡',emoji:'🐔',mx:77.0,my:234.3,price:'¥20~28',addr:'顺平路',dishes:'黄焖鸡米饭\n黄焖排骨'},]},'隆昌路':{label:'隆昌路',color:'#a78bfa',cx:400,cy:320,shops:[{name:'兰州拉面',emoji:'🐂',mx:415.0,my:320.0,price:'¥20~28',addr:'隆昌路',dishes:'炒拉条\n牛肉拉面\n牛肉炒饭'},{name:'沙县小吃',emoji:'🥘',mx:390.0,my:331.2,price:'¥9~22',addr:'隆昌路',dishes:'扁肉(小碗)\n蒸饺(一笼)\n卤蛋+拌面'},{name:'隆昌猪脚饭',emoji:'🐷',mx:398.3,my:305.1,price:'¥22~26',addr:'隆昌路',dishes:'猪脚面\n叉烧饭\n猪脚饭(单人)'},{name:'张亮麻辣烫',emoji:'🍲',mx:412.2,my:328.7,price:'¥22~26',addr:'隆昌路',dishes:'麻辣拌\n自选麻辣烫\n骨汤麻辣烫'},{name:'鱼非鱼',emoji:'🐟',mx:385.4,my:323.3,price:'¥45~58',addr:'隆昌路',dishes:'番茄鱼(单人份)\n酸菜鱼(单人份)\n水煮鱼(单人份)'},{name:'早安粥铺',emoji:'🥣',mx:416.9,my:289.4,price:'¥14~18',addr:'隆昌路',dishes:'南瓜粥+煎饼\n瘦肉粥+油条\n皮蛋瘦肉粥'},{name:'天津煎饼',emoji:'🫓',mx:411.6,my:353.0,price:'¥10~14',addr:'隆昌路地铁口',dishes:'杂粮煎饼\n鸡蛋灌饼\n煎饼果子(加蛋)'},{name:'隆昌路小吃摊',emoji:'🫓',mx:367.7,my:306.6,price:'¥5~15',addr:'隆昌路地铁口',dishes:'淀粉肠\n烤面筋(2串)\n烤红薯'},{name:'台北卤肉饭',emoji:'🍚',mx:431.5,my:304.8,price:'¥22~26',addr:'隆昌路',dishes:'卤肉饭(单人)\n鸡排饭\n控肉饭'},{name:'隆昌路锅贴',emoji:'🥟',mx:390.3,my:353.6,price:'¥14~25',addr:'隆昌路',dishes:'锅贴(8只)\n牛肉粉丝汤\n锅贴+牛肉汤套餐'},{name:'隆昌路麻辣串',emoji:'🍢',mx:370.7,my:273.5,price:'¥18~20',addr:'隆昌路',dishes:'关东煮(单人)\n麻辣串(10串)'},{name:'隆昌路卤味',emoji:'🦆',mx:454.2,my:329.2,price:'¥18~25',addr:'隆昌路',dishes:'卤藕片+粥\n卤鸭脖+饭'},{name:'巴比馒头',emoji:'🥟',mx:357.0,my:354.3,price:'¥3~4',addr:'隆昌路',dishes:'巴比馒头豆浆\n巴比馒头肉包'},{name:'全家便利店',emoji:'🍱',mx:403.0,my:265.1,price:'¥8~18',addr:'隆昌路',dishes:'全家关东煮\n全家盒饭便当'},{name:'罗森便利店',emoji:'🍱',mx:438.9,my:358.8,price:'¥6~16',addr:'隆昌路',dishes:'罗森饭团\n罗森盒饭便当'},{name:'吉野家',emoji:'🐂',mx:325.1,my:324.3,price:'¥29~32',addr:'隆昌路',dishes:'吉野家牛丼\n吉野家照烧鸡排饭'},{name:'大壶春',emoji:'🥟',mx:446.7,my:261.3,price:'¥12~18',addr:'隆昌路',dishes:'大壶春咖喱牛肉汤\n大壶春生煎'},{name:'四海游龙',emoji:'🥟',mx:412.7,my:393.9,price:'¥18~18',addr:'隆昌路',dishes:'四海游龙锅贴'},{name:'永和大王',emoji:'🥤',mx:336.4,my:280.2,price:'¥15~25',addr:'隆昌路',dishes:'永和大王豆浆油条\n永和大王卤肉饭'},{name:'真功夫',emoji:'🦴',mx:472.0,my:299.1,price:'¥22~28',addr:'隆昌路',dishes:'真功夫蒸蛋+饭\n真功夫排骨饭'},{name:'老乡鸡',emoji:'🐔',mx:358.9,my:405.7,price:'¥28~32',addr:'隆昌路',dishes:'老乡鸡自选快餐\n老乡鸡鸡汤+饭'},{name:'大米先生',emoji:'🍚',mx:363.5,my:232.3,price:'¥25~25',addr:'隆昌路',dishes:'大米先生自选'},{name:'顺旺基',emoji:'🍱',mx:489.7,my:351.2,price:'¥22~22',addr:'隆昌路',dishes:'顺旺基自选快餐'},{name:'蜀王快餐',emoji:'🍚',mx:317.0,my:366.1,price:'¥24~24',addr:'隆昌路',dishes:'蜀王自选快餐'},{name:'正新鸡排',emoji:'🍗',mx:420.9,my:227.3,price:'¥13~15',addr:'隆昌路',dishes:'正新鸡排\n正新烤鱿鱼'},{name:'新疆烧烤',emoji:'🍢',mx:466.8,my:413.6,price:'¥6~20',addr:'隆昌路',dishes:'新疆烤馕\n新疆羊肉串(5串)'},{name:'潮汕小吃',emoji:'🦐',mx:285.7,my:307.4,price:'¥16~18',addr:'隆昌路',dishes:'肠粉(鲜虾)\n炒河粉'},{name:'陕西凉皮',emoji:'🥗',mx:485.6,my:243.2,price:'¥10~12',addr:'隆昌路',dishes:'肉夹馍\n凉皮'},{name:'绝味鸭脖',emoji:'🦆',mx:400.3,my:435.0,price:'¥20~20',addr:'隆昌路',dishes:'绝味鸭脖'},{name:'紫燕百味鸡',emoji:'🐔',mx:314.0,my:243.6,price:'¥25~25',addr:'隆昌路',dishes:'紫燕百味鸡'},{name:'超级鸡车',emoji:'🍗',mx:534.1,my:304.5,price:'¥20~22',addr:'隆昌路',dishes:'超级鸡车辛拉面\n超级鸡车炸鸡'},{name:'阿甘锅盔',emoji:'🫓',mx:322.2,my:430.3,price:'¥12~12',addr:'隆昌路',dishes:'阿甘锅盔'},]},'隆昌路站4号口':{label:'隆昌路站4号口',color:'#fb923c',cx:450,cy:380,shops:[{name:'壹碗面',emoji:'🍜',mx:465.0,my:380.0,price:'¥18~32',addr:'隆昌路站4号口',dishes:'牛腩面\n雪菜肉丝面'},{name:'小渝儿',emoji:'🌶️',mx:440.0,my:391.2,price:'¥14~25',addr:'隆昌路站4号口',dishes:'重庆小面\n酸辣粉'},{name:'地铁口煎饼',emoji:'🥓',mx:448.3,my:365.1,price:'¥8~15',addr:'隆昌路站4号口',dishes:'杂粮煎饼\n鸡蛋灌饼'},{name:'地铁口烧烤',emoji:'🍢',mx:462.2,my:388.7,price:'¥18~35',addr:'隆昌路站4号口',dishes:'烤串单人餐'},{name:'地铁口卤味',emoji:'🦆',mx:435.4,my:383.3,price:'¥8~25',addr:'隆昌路站4号口',dishes:'卤鸭脖\n卤藕片'},{name:'全家便利店·地铁',emoji:'🏪',mx:466.9,my:349.4,price:'¥6~22',addr:'隆昌路站4号口',dishes:'便当套餐\n饭团'},]},'周家嘴路':{label:'周家嘴路',color:'#34d399',cx:350,cy:450,shops:[{name:'重庆鸡公煲',emoji:'🐔',mx:365.0,my:450.0,price:'¥32~38',addr:'周家嘴路',dishes:'鸡公煲(单人)\n排骨煲(单人)\n鸡公煲+年糕'},{name:'黄焖鸡米饭',emoji:'🐔',mx:340.0,my:461.2,price:'¥20~28',addr:'周家嘴路',dishes:'黄焖豆腐米饭\n黄焖鸡米饭(小)\n黄焖排骨米饭'},{name:'沪味面馆',emoji:'🌶️',mx:348.3,my:435.1,price:'¥18~28',addr:'周家嘴路',dishes:'葱油拌面+素鸡\n辣酱面\n雪菜肉丝面'},{name:'柳州螺蛳粉',emoji:'🍜',mx:362.2,my:458.7,price:'¥22~30',addr:'周家嘴路',dishes:'螺蛳粉(单人)\n干拌螺蛳粉\n螺蛳粉+炸蛋'},{name:'东北水饺',emoji:'🥟',mx:335.4,my:453.3,price:'¥22~32',addr:'周家嘴路',dishes:'水饺(15只)\n地三鲜盖饭\n酸菜炖粉条(单人)'},{name:'川味小馆',emoji:'🌶️',mx:366.9,my:419.4,price:'¥18~32',addr:'周家嘴路',dishes:'担担面\n麻婆豆腐盖饭\n麻辣拌面'},{name:'周家嘴路小炒',emoji:'🍚',mx:361.6,my:483.0,price:'¥18~24',addr:'周家嘴路',dishes:'蛋炒饭\n番茄炒蛋盖饭\n扬州炒饭'},{name:'老盛昌',emoji:'🥟',mx:317.7,my:436.6,price:'¥22~28',addr:'周家嘴路',dishes:'老盛昌汤包\n老盛昌苏州汤包'},{name:'吉祥馄饨',emoji:'🥟',mx:381.5,my:434.8,price:'¥16~22',addr:'周家嘴路',dishes:'吉祥馄饨鲜肉小馄饨\n吉祥馄饨全家福'},{name:'大娘水饺',emoji:'🥟',mx:340.3,my:483.6,price:'¥20~20',addr:'周家嘴路',dishes:'大娘水饺白菜猪肉'},{name:'粤式小厨',emoji:'🍝',mx:320.7,my:403.5,price:'¥22~26',addr:'周家嘴路',dishes:'港式奶茶+菠萝油\n干炒牛河'},{name:'隆昌烧腊',emoji:'🦆',mx:404.2,my:459.2,price:'¥25~25',addr:'周家嘴路',dishes:'广式烧鸭饭'},{name:'北京烤鸭',emoji:'🦆',mx:307.0,my:484.3,price:'¥32~32',addr:'周家嘴路',dishes:'北京烤鸭(单人)'},{name:'隆昌烧烤',emoji:'🍢',mx:353.0,my:395.1,price:'¥38~38',addr:'周家嘴路',dishes:'烤串(单人套餐)'},{name:'串大侠',emoji:'🍢',mx:388.9,my:488.8,price:'¥35~35',addr:'周家嘴路',dishes:'串串香(单人)'},{name:'五芳斋',emoji:'🍙',mx:275.1,my:454.3,price:'¥12~22',addr:'周家嘴路',dishes:'五芳斋粽子\n五芳斋大排面'},]},'控江路':{label:'控江路',color:'#f472b6',cx:480,cy:200,shops:[{name:'桂林米粉',emoji:'🍜',mx:495.0,my:200.0,price:'¥20~24',addr:'控江路',dishes:'桂林米粉(卤味)\n酸笋米粉\n叉烧米粉'},{name:'武汉热干面',emoji:'🍜',mx:470.0,my:211.2,price:'¥16~22',addr:'控江路',dishes:'热干面(单人)\n三鲜豆皮\n热干面+蛋酒'},{name:'韩式料理',emoji:'🍚',mx:478.3,my:185.1,price:'¥26~45',addr:'控江路',dishes:'韩式泡菜汤+饭\n韩式石锅拌饭\n部队锅(单人)'},{name:'炭火烤鱼',emoji:'🐟',mx:492.2,my:208.7,price:'¥48~48',addr:'控江路',dishes:'炭火烤鱼(单人)'},{name:'福禄娃',emoji:'🌶️',mx:465.4,my:203.3,price:'¥32~32',addr:'控江路',dishes:'福禄娃麻辣香锅'},]},}
+var canvas=document.getElementById('mapCanvas');
+var ctx=canvas.getContext('2d');
+var tooltip=document.getElementById('tooltip');
+var W=640,H=580;
+var dpr=window.devicePixelRatio||1;
+canvas.width=W*dpr; canvas.height=H*dpr;
+canvas.style.width=W+'px'; canvas.style.height=H+'px';
+ctx.scale(dpr,dpr);
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.03)';
+  ctx.lineWidth=0.5;
+  for(var x=0;x<=W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(var y=0;y<=H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  // Area connection lines
+  for(var ak in areas){
+    var a=areas[ak];
+    ctx.strokeStyle=a.color+'20';
+    ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    for(var i=0;i<a.shops.length;i++){
+      var s=a.shops[i];
+      ctx.beginPath();ctx.moveTo(a.cx,a.cy);ctx.lineTo(s.mx,s.my);ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+  // Area labels
+  ctx.font='bold 12px Noto Sans SC,PingFang SC,sans-serif'; ctx.textAlign='center';
+  for(var ak in areas){
+    var a=areas[ak];
+    ctx.fillStyle=a.color+'30'; ctx.font='bold 13px Noto Sans SC,PingFang SC,sans-serif';
+    ctx.fillText(a.label,a.cx,a.cy-14);
+    // Center dot
+    ctx.beginPath();ctx.arc(a.cx,a.cy,5,0,Math.PI*2);
+    ctx.fillStyle=a.color+'40'; ctx.fill();
+  }
+  // Shops
+  for(var ak in areas){
+    var a=areas[ak];
+    for(var i=0;i<a.shops.length;i++){
+      var s=a.shops[i];
+      // Glow
+      var g=ctx.createRadialGradient(s.mx,s.my,0,s.mx,s.my,12);
+      g.addColorStop(0,a.color+'60'); g.addColorStop(1,a.color+'00');
+      ctx.fillStyle=g; ctx.beginPath();ctx.arc(s.mx,s.my,12,0,Math.PI*2);ctx.fill();
+      // Dot
+      ctx.beginPath();ctx.arc(s.mx,s.my,4.5,0,Math.PI*2);
+      ctx.fillStyle=a.color; ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.2; ctx.stroke();
+      // Emoji
+      ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      ctx.fillText(s.emoji,s.mx,s.my-8);
+    }
+  }
+  ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.font='10px Noto Sans SC,PingFang SC,sans-serif';
+  ctx.textAlign='left'; ctx.fillText('北 ↑ 隆昌路',8,18);
+  ctx.textAlign='right'; ctx.fillText('周家嘴路 →',W-8,H-8);
+}
+draw();
+
+function getScale(){
+  var rect=canvas.getBoundingClientRect();
+  return {sx:W/rect.width, sy:H/rect.height};
+}
+
+function findShop(e){
+  var rect=canvas.getBoundingClientRect();
+  var x=(e.clientX-rect.left)*(W/rect.width);
+  var y=(e.clientY-rect.top)*(H/rect.height);
+  var best=null, bestDist=15;
+  for(var ak in areas){
+    var a=areas[ak];
+    for(var i=0;i<a.shops.length;i++){
+      var s=a.shops[i];
+      var dx=s.mx-x, dy=s.my-y, d=Math.sqrt(dx*dx+dy*dy);
+      if(d<bestDist){bestDist=d;best={shop:s,area:a};}
+    }
+  }
+  return best;
+}
+
+function showTooltip(e,hit){
+  if(!hit){tooltip.style.display='none';return;}
+  var s=hit.shop, a=hit.area;
+  tooltip.style.display='block';
+  tooltip.innerHTML='<div class="tt-name">'+s.emoji+' '+s.name+'</div><div class="tt-addr">'+s.addr+'</div><div class="tt-price">'+s.price+'</div><div class="tt-dishes">'+(s.dishes||'')+'</div>';
+  var tx=e.clientX+16, ty=e.clientY-10;
+  if(tx+270>window.innerWidth) tx=e.clientX-280;
+  if(ty<10) ty=10;
+  if(ty+80>window.innerHeight) ty=window.innerHeight-90;
+  tooltip.style.left=tx+'px'; tooltip.style.top=ty+'px';
+}
+
+canvas.addEventListener('mousemove',function(e){
+  var hit=findShop(e); showTooltip(e,hit);
+  canvas.style.cursor=hit?'pointer':'default';
+});
+canvas.addEventListener('click',function(e){
+  var hit=findShop(e);
+  if(hit){showTooltip(e,hit);setTimeout(function(){tooltip.style.display='none'},3000)}
+});
+canvas.addEventListener('touchstart',function(e){
+  var t=e.touches[0]; var hit=findShop(t);
+  if(hit){
+    showTooltip(t,hit);
+    setTimeout(function(){tooltip.style.display='none'},3000);
+  }
+});
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#mapCanvas')) tooltip.style.display='none';
+});
+</script>
+</body>
+</html>

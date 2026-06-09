@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>今天吃啥？｜宝龙旭辉广场美食抽签</title>
+<style>
+@import url(https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap);
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Noto Sans SC",-apple-system,PingFang SC,sans-serif;background:#0f0f1a;min-height:100vh;padding:20px;background-image:radial-gradient(ellipse at 20% 50%,rgba(255,107,53,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(255,200,50,0.08) 0%,transparent 50%)}
+.container{max-width:560px;width:100%;margin:0 auto}
+.header{text-align:center;margin-bottom:24px}
+.header .icon{font-size:42px;display:block;margin-bottom:6px}
+.header h1{font-size:26px;font-weight:900;color:#fff;letter-spacing:2px}
+.header h1 .hl{background:linear-gradient(135deg,#ff6b35,#ffc832);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .sub{font-size:13px;color:rgba(255,255,255,0.4);margin-top:6px;line-height:1.5}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center}
+.filter-tag{padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);font-size:13px;cursor:pointer;transition:all .25s;font-family:inherit}
+.filter-tag:hover{background:rgba(255,255,255,0.1);color:#fff}
+.filter-tag.active{background:linear-gradient(135deg,#ff6b35,#ffc832);color:#0f0f1a;border-color:transparent;font-weight:700}
+.area-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;justify-content:center}
+.area-tag{padding:4px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-size:12px;cursor:pointer;transition:all .25s;font-family:inherit}
+.area-tag:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7)}
+.area-tag.active{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.2);font-weight:600}
+.lottery-card{background:linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px 24px 28px;text-align:center;position:relative;overflow:hidden}
+.lottery-card::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,107,53,0.03) 60deg,transparent 120deg,rgba(255,200,50,0.03) 180deg,transparent 240deg,rgba(255,107,53,0.03) 300deg,transparent);animation:rotateBg 20s linear infinite;pointer-events:none;z-index:0}
+@keyframes rotateBg{to{transform:rotate(360deg)}}
+.lottery-card>*{position:relative;z-index:1}
+.result-area{min-height:170px;display:flex;flex-direction:column;justify-content:center;align-items:center;margin-bottom:20px}
+.placeholder{color:rgba(255,255,255,0.2);font-size:15px;letter-spacing:2px;line-height:1.8}
+.placeholder .big-e{font-size:56px;display:block;margin-bottom:10px}
+.r-show{display:none;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(.3) rotate(-10deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.r-show.v{display:block}
+.r-name{font-size:32px;font-weight:900;color:#fff;margin-bottom:4px;line-height:1.3}
+.r-name .e{margin-right:8px}
+.r-shop{font-size:18px;color:rgba(255,255,255,0.7);margin-bottom:4px;font-weight:500}
+.r-shop .tag{display:inline-block;background:rgba(255,107,53,0.2);color:#ff8a5c;font-size:11px;padding:2px 12px;border-radius:20px;margin-left:6px;font-weight:500}
+.r-price{font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:3px}
+.r-area{font-size:13px;color:rgba(255,255,255,0.35);margin-bottom:2px}
+.r-dishes{font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px}
+.r-dishes span{display:inline-block;background:rgba(255,255,255,0.05);padding:1px 8px;border-radius:10px;margin:2px}
+.lottery-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 48px;border:none;border-radius:60px;background:linear-gradient(135deg,#ff6b35,#ffc832);color:#0f0f1a;font-size:18px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit;box-shadow:0 4px 24px rgba(255,107,53,0.3)}
+.lottery-btn:hover{transform:translateY(-2px);box-shadow:0 6px 32px rgba(255,107,53,0.5)}
+.lottery-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.lottery-btn .bi{font-size:22px}
+.spinning .lottery-card{border-color:rgba(255,107,53,0.3)}
+.dish-section{margin-top:24px}
+.dish-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.dish-section-header h2{font-size:16px;color:rgba(255,255,255,0.7);font-weight:500}
+.dish-section-header .cnt{font-size:13px;color:rgba(255,255,255,0.3)}
+.dish-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.dish-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px 14px;cursor:pointer;transition:all .25s}
+.dish-item:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.12);transform:translateY(-1px)}
+.dish-item .i-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+.dish-item .i-addr{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:3px}
+.dish-item .i-dishes{font-size:11px;color:rgba(255,255,255,0.25);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dish-item .i-price{font-size:12px;color:#ff8a5c;font-weight:500}
+.dish-item .i-tag{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.footer{text-align:center;margin-top:28px;font-size:12px;color:rgba(255,255,255,0.2);line-height:1.8}
+.footer a{color:rgba(255,255,255,0.35);text-decoration:none}
+.footer a:hover{color:rgba(255,255,255,0.6)}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
+.confetti-piece{position:absolute;top:-10px;opacity:.9;animation:cfFall linear forwards}
+@keyframes cfFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@media(max-width:400px){.dish-grid{grid-template-columns:1fr}.lottery-card{padding:24px 16px 20px}.r-name{font-size:24px}.header h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><span class="icon">🥢</span><h1>今天<span class="hl">吃啥</span>？</h1><div class="sub">🗺️ 宝龙旭辉广场400m · 顺平路 · 隆昌路4号口 · 109家店</div></div>
+<div class="filters" id="filters">
+<button class="filter-tag active" data-filter="all">✨ 全部</button>
+<button class="filter-tag" data-filter="noodle">🍜 面食</button>
+<button class="filter-tag" data-filter="rice">🍚 米饭</button>
+<button class="filter-tag" data-filter="hotpot">🍲 锅物</button>
+<button class="filter-tag" data-filter="fast">🥟 小吃快餐</button>
+<button class="filter-tag" data-filter="light">🥗 轻食饮品</button>
+</div>
+<div class="area-filters" id="areaFilters">
+<button class="area-tag active" data-area="all">📍 全部区域</button>
+<button class="area-tag" data-area="商场内" style="border-color:#ff6b3540;color:#ff6b3580">商场内</button>
+<button class="area-tag" data-area="顺平路" style="border-color:#4ecdc440;color:#4ecdc480">顺平路</button>
+<button class="area-tag" data-area="隆昌路" style="border-color:#a78bfa40;color:#a78bfa80">隆昌路</button>
+<button class="area-tag" data-area="隆昌路站4号口" style="border-color:#fb923c40;color:#fb923c80">隆昌路站4号口</button>
+<button class="area-tag" data-area="周家嘴路" style="border-color:#34d39940;color:#34d39980">周家嘴路</button>
+<button class="area-tag" data-area="控江路" style="border-color:#f472b640;color:#f472b680">控江路</button>
+</div>
+<div class="lottery-card" id="lotteryCard">
+<div class="result-area">
+<div class="placeholder" id="placeholder"><span class="big-e">🤔</span>点击抽签<br>让命运决定你今天吃啥</div>
+<div class="r-show" id="resultShow">
+<div class="r-name" id="resultDish"></div>
+<div class="r-shop" id="resultShop"></div>
+<div class="r-price" id="resultPrice"></div>
+<div class="r-area" id="resultArea"></div>
+<div class="r-dishes" id="resultDishes"></div>
+</div>
+</div>
+<button class="lottery-btn" id="lotteryBtn"><span class="bi">🎰</span><span>抽一签！</span></button>
+</div>
+<div class="dish-section">
+<div class="dish-section-header"><h2>📋 全部美食店铺</h2><span class="cnt" id="shopCount"></span></div>
+<div class="dish-grid" id="dishGrid"></div>
+</div>
+<div class="footer">每天不知道吃啥？让签筒帮你决定 🎲<br><a href="map.html">🗺️ 查看二维美食地图</a></div>
+</div>
+<div class="confetti-container" id="confettiContainer"></div>
+<script>
+var shops=[{"name": "和府捞面", "areas": ["商场内"], "price_min": 36, "price_max": 45, "addr": "B1层 和府捞面", "dist": "商场内", "area": "商场内", "emoji": "🐂", "rep_dishes": [{"name": "草本汤排骨面", "price": 36}, {"name": "招牌牛肉面", "price": 39}, {"name": "番茄牛腩面", "price": 39}, {"name": "番茄猪软骨面", "price": 42}, {"name": "酸汤肥牛面", "price": 42}], "dish_count": 6, "cat": "noodle", "mx": 315.0, "my": 280.0}, {"name": "食其家", "areas": ["商场内"], "price_min": 25, "price_max": 45, "addr": "B1层 食其家", "dist": "商场内", "area": "商场内", "emoji": "🐂", "rep_dishes": [{"name": "牛丼(并盛)", "price": 25}, {"name": "亲子丼", "price": 28}, {"name": "麻婆豆腐饭", "price": 29}, {"name": "牛丼(大盛)", "price": 32}, {"name": "咖喱牛肉饭", "price": 32}], "dish_count": 7, "cat": "rice", "mx": 290.0, "my": 291.2}, {"name": "小杨生煎", "areas": ["商场内"], "price_min": 15, "price_max": 28, "addr": "B1层 小杨生煎", "dist": "商场内", "area": "商场内", "emoji": "🥟", "rep_dishes": [{"name": "酸辣粉", "price": 15}, {"name": "生煎(4只)", "price": 16}, {"name": "虾仁生煎(4只)", "price": 22}, {"name": "大虾生煎(4只)", "price": 26}, {"name": "生煎+牛肉粉丝汤", "price": 28}], "dish_count": 5, "cat": "noodle", "mx": 298.3, "my": 265.1}, {"name": "大鼓米线", "areas": ["商场内"], "price_min": 32, "price_max": 42, "addr": "B1层 大鼓米线", "dist": "商场内", "area": "商场内", "emoji": "🍜", "rep_dishes": [{"name": "菌菇鸡汤米线", "price": 32}, {"name": "原味过桥米线", "price": 35}, {"name": "肥牛米线", "price": 36}, {"name": "番茄牛腩米线", "price": 38}, {"name": "麻辣牛肉米线", "price": 38}], "dish_count": 6, "cat": "noodle", "mx": 312.2, "my": 288.7}, {"name": "杨国福麻辣烫", "areas": ["商场内"], "price_min": 26, "price_max": 32, "addr": "B1层 杨国福", "dist": "商场内", "area": "商场内", "emoji": "🍲", "rep_dishes": [{"name": "麻辣拌(单人)", "price": 26}, {"name": "自选麻辣烫", "price": 28}, {"name": "番茄底麻辣烫", "price": 30}, {"name": "麻辣烫+米饭", "price": 32}], "dish_count": 4, "cat": "rice", "mx": 285.4, "my": 283.3}, {"name": "CoCo壱番屋", "areas": ["商场内"], "price_min": 30, "price_max": 42, "addr": "B1层 CoCo", "dist": "商场内", "area": "商场内", "emoji": "🍛", "rep_dishes": [{"name": "蔬菜咖喱饭", "price": 30}, {"name": "鸡肉咖喱饭", "price": 35}, {"name": "蛋包咖喱饭", "price": 38}, {"name": "牛肉咖喱乌冬", "price": 38}, {"name": "炸猪排咖喱饭", "price": 42}], "dish_count": 5, "cat": "rice", "mx": 316.9, "my": 249.4}, {"name": "味千拉面", "areas": ["商场内"], "price_min": 18, "price_max": 42, "addr": "B1层 味千", "dist": "商场内", "area": "商场内", "emoji": "🍜", "rep_dishes": [{"name": "日式煎饺", "price": 18}, {"name": "味千招牌拉面", "price": 35}, {"name": "地狱拉面(辣)", "price": 36}, {"name": "照烧鸡排饭", "price": 38}, {"name": "番茄肥牛拉面", "price": 39}], "dish_count": 6, "cat": "noodle", "mx": 311.6, "my": 313.0}, {"name": "廖记棒棒鸡", "areas": ["商场内"], "price_min": 22, "price_max": 28, "addr": "B1层 廖记", "dist": "商场内", "area": "商场内", "emoji": "🐔", "rep_dishes": [{"name": "棒棒鸡(单人)", "price": 22}, {"name": "无骨凤爪", "price": 25}, {"name": "夫妻肺片", "price": 28}], "dish_count": 3, "cat": "fast", "mx": 267.7, "my": 266.6}, {"name": "久久丫", "areas": ["商场内"], "price_min": 12, "price_max": 15, "addr": "B1层 久久丫", "dist": "商场内", "area": "商场内", "emoji": "🦆", "rep_dishes": [{"name": "卤藕片", "price": 12}, {"name": "卤鸭脖", "price": 15}], "dish_count": 2, "cat": "fast", "mx": 331.5, "my": 264.8}, {"name": "盒马鲜生", "areas": ["商场内"], "price_min": 25, "price_max": 35, "addr": "B1层 盒马", "dist": "商场内", "area": "商场内", "emoji": "🐟", "rep_dishes": [{"name": "盒马自选快餐", "price": 25}, {"name": "海鲜炒面", "price": 26}, {"name": "宫保鸡丁套餐", "price": 28}, {"name": "日式便当", "price": 28}, {"name": "酸菜鱼套餐", "price": 32}], "dish_count": 6, "cat": "noodle", "mx": 290.3, "my": 313.6}, {"name": "瑞幸咖啡", "areas": ["商场内"], "price_min": 16, "price_max": 19, "addr": "B1层 瑞幸", "dist": "商场内", "area": "商场内", "emoji": "☕", "rep_dishes": [{"name": "瑞幸美式", "price": 16}, {"name": "瑞幸生椰拿铁", "price": 19}], "dish_count": 2, "cat": "light", "mx": 270.7, "my": 233.5}, {"name": "快乐柠檬", "areas": ["商场内"], "price_min": 16, "price_max": 16, "addr": "B1层 快乐柠檬", "dist": "商场内", "area": "商场内", "emoji": "🧋", "rep_dishes": [{"name": "快乐柠檬奶茶", "price": 16}], "dish_count": 1, "cat": "light", "mx": 354.2, "my": 289.2}, {"name": "7分甜", "areas": ["商场内"], "price_min": 22, "price_max": 22, "addr": "B1层 7分甜", "dist": "商场内", "area": "商场内", "emoji": "🥭", "rep_dishes": [{"name": "7分甜杨枝甘露", "price": 22}], "dish_count": 1, "cat": "fast", "mx": 257.0, "my": 314.3}, {"name": "一点点", "areas": ["商场内"], "price_min": 14, "price_max": 14, "addr": "B1层 一点点", "dist": "商场内", "area": "商场内", "emoji": "🧋", "rep_dishes": [{"name": "一点点奶茶", "price": 14}], "dish_count": 1, "cat": "light", "mx": 303.0, "my": 225.1}, {"name": "奈雪的茶", "areas": ["商场内"], "price_min": 29, "price_max": 29, "addr": "B1层 奈雪", "dist": "商场内", "area": "商场内", "emoji": "🍊", "rep_dishes": [{"name": "奈雪霸气橙子", "price": 29}], "dish_count": 1, "cat": "light", "mx": 338.9, "my": 318.8}, {"name": "喜茶", "areas": ["商场内"], "price_min": 32, "price_max": 32, "addr": "B1层 喜茶", "dist": "商场内", "area": "商场内", "emoji": "🍓", "rep_dishes": [{"name": "喜茶芝芝莓莓", "price": 32}], "dish_count": 1, "cat": "light", "mx": 225.1, "my": 284.3}, {"name": "麦当劳", "areas": ["商场内"], "price_min": 13, "price_max": 39, "addr": "1层 麦当劳", "dist": "商场内", "area": "商场内", "emoji": "🍔", "rep_dishes": [{"name": "1+1随心配", "price": 13}, {"name": "麦香鱼套餐", "price": 32}, {"name": "板烧鸡腿堡套餐", "price": 34}, {"name": "麦辣鸡腿堡套餐", "price": 36}, {"name": "双层吉士汉堡套餐", "price": 38}], "dish_count": 6, "cat": "fast", "mx": 346.7, "my": 221.3}, {"name": "肯德基", "areas": ["商场内"], "price_min": 12, "price_max": 36, "addr": "1层 肯德基", "dist": "商场内", "area": "商场内", "emoji": "🍔", "rep_dishes": [{"name": "蛋挞(2只)", "price": 12}, {"name": "老北京鸡肉卷", "price": 30}, {"name": "黄金脆皮鸡套餐", "price": 32}, {"name": "奥尔良烤鸡堡套餐", "price": 35}, {"name": "香辣鸡腿堡套餐", "price": 36}], "dish_count": 5, "cat": "fast", "mx": 312.7, "my": 353.9}, {"name": "星巴克", "areas": ["商场内"], "price_min": 28, "price_max": 35, "addr": "1层 星巴克", "dist": "商场内", "area": "商场内", "emoji": "☕", "rep_dishes": [{"name": "星巴克三明治", "price": 28}, {"name": "星巴克美式", "price": 30}, {"name": "星巴克拿铁", "price": 35}], "dish_count": 3, "cat": "fast", "mx": 236.4, "my": 240.2}, {"name": "必胜客", "areas": ["商场内"], "price_min": 42, "price_max": 48, "addr": "1层 必胜客", "dist": "商场内", "area": "商场内", "emoji": "🍕", "rep_dishes": [{"name": "必胜客意面", "price": 42}, {"name": "必胜客单人披萨", "price": 48}], "dish_count": 2, "cat": "noodle", "mx": 372.0, "my": 259.1}, {"name": "有喜屋", "areas": ["商场内"], "price_min": 38, "price_max": 58, "addr": "1层 有喜屋", "dist": "商场内", "area": "商场内", "emoji": "🐟", "rep_dishes": [{"name": "牛丼套餐", "price": 38}, {"name": "日式咖喱猪排饭", "price": 42}, {"name": "寿司拼盘(单人)", "price": 48}, {"name": "鳗鱼饭套餐", "price": 58}], "dish_count": 4, "cat": "rice", "mx": 258.9, "my": 365.7}, {"name": "巴黎贝甜", "areas": ["商场内"], "price_min": 15, "price_max": 22, "addr": "1层 巴黎贝甜", "dist": "商场内", "area": "商场内", "emoji": "🥐", "rep_dishes": [{"name": "巴黎贝甜面包", "price": 15}, {"name": "巴黎贝甜三明治", "price": 22}], "dish_count": 2, "cat": "noodle", "mx": 263.5, "my": 192.3}, {"name": "Manner Coffee", "areas": ["商场内"], "price_min": 20, "price_max": 25, "addr": "1层 Manner", "dist": "商场内", "area": "商场内", "emoji": "☕", "rep_dishes": [{"name": "Manner拿铁", "price": 20}, {"name": "Manner澳白", "price": 25}], "dish_count": 2, "cat": "fast", "mx": 389.7, "my": 311.2}, {"name": "呷哺呷哺", "areas": ["商场内"], "price_min": 46, "price_max": 58, "addr": "2层 呷哺呷哺", "dist": "商场内", "area": "商场内", "emoji": "🥘", "rep_dishes": [{"name": "菌菇锅单人", "price": 46}, {"name": "咖喱锅单人", "price": 48}, {"name": "番茄锅单人", "price": 48}, {"name": "麻辣锅单人", "price": 52}, {"name": "羊肉单人锅", "price": 55}], "dish_count": 6, "cat": "rice", "mx": 217.0, "my": 326.1}, {"name": "辣三多", "areas": ["商场内"], "price_min": 28, "price_max": 42, "addr": "2层 辣三多", "dist": "商场内", "area": "商场内", "emoji": "🌶️", "rep_dishes": [{"name": "麻辣拌", "price": 28}, {"name": "麻辣香锅(单人)", "price": 36}, {"name": "香锅+米饭套餐", "price": 42}], "dish_count": 3, "cat": "rice", "mx": 320.9, "my": 187.3}, {"name": "萨莉亚", "areas": ["商场内"], "price_min": 14, "price_max": 28, "addr": "3层 萨莉亚", "dist": "商场内", "area": "商场内", "emoji": "🧀", "rep_dishes": [{"name": "奶油蘑菇汤+面包", "price": 14}, {"name": "芝士焗意面", "price": 18}, {"name": "温泉蛋培根面", "price": 20}, {"name": "熏香肠拼盘", "price": 20}, {"name": "米兰风烤鸡排", "price": 22}], "dish_count": 8, "cat": "noodle", "mx": 366.8, "my": 373.6}, {"name": "鱼酷", "areas": ["商场内"], "price_min": 65, "price_max": 68, "addr": "3层 鱼酷", "dist": "商场内", "area": "商场内", "emoji": "🐟", "rep_dishes": [{"name": "单人烤鱼(酸菜味)", "price": 65}, {"name": "单人烤鱼(豆豉味)", "price": 65}, {"name": "单人烤鱼(荔枝味)", "price": 68}, {"name": "单人烤鱼(香辣味)", "price": 68}], "dish_count": 4, "cat": "hotpot", "mx": 185.7, "my": 267.4}, {"name": "松鹤楼", "areas": ["商场内"], "price_min": 38, "price_max": 68, "addr": "3层 松鹤楼", "dist": "商场内", "area": "商场内", "emoji": "🦢", "rep_dishes": [{"name": "苏式汤面", "price": 38}, {"name": "蟹粉小笼", "price": 45}, {"name": "松鼠桂鱼(单人)", "price": 68}], "dish_count": 3, "cat": "noodle", "mx": 385.6, "my": 203.2}, {"name": "御鲜匠", "areas": ["商场内"], "price_min": 58, "price_max": 88, "addr": "3层 御鲜匠", "dist": "商场内", "area": "商场内", "emoji": "🐟", "rep_dishes": [{"name": "斑鱼片", "price": 58}, {"name": "斑鱼火锅(单人)", "price": 88}], "dish_count": 2, "cat": "hotpot", "mx": 300.3, "my": 395.0}, {"name": "淘小馆·本帮菜", "areas": ["商场内"], "price_min": 22, "price_max": 42, "addr": "3层 淘小馆", "dist": "商场内", "area": "商场内", "emoji": "🥩", "rep_dishes": [{"name": "葱油拌面", "price": 22}, {"name": "上海炒面", "price": 28}, {"name": "狮子头饭", "price": 35}, {"name": "糖醋排骨饭", "price": 38}, {"name": "红烧肉饭(单人)", "price": 42}], "dish_count": 5, "cat": "noodle", "mx": 214.0, "my": 203.6}, {"name": "兰州拉面", "areas": ["隆昌路"], "price_min": 20, "price_max": 28, "addr": "隆昌路", "dist": "约50m", "area": "隆昌路", "emoji": "🐂", "rep_dishes": [{"name": "炒拉条", "price": 20}, {"name": "牛肉拉面", "price": 22}, {"name": "牛肉炒饭", "price": 22}, {"name": "牛肉刀削面", "price": 24}, {"name": "牛肉炒面", "price": 24}], "dish_count": 6, "cat": "noodle", "mx": 415.0, "my": 320.0}, {"name": "沙县小吃", "areas": ["隆昌路"], "price_min": 9, "price_max": 22, "addr": "隆昌路", "dist": "约80m", "area": "隆昌路", "emoji": "🥘", "rep_dishes": [{"name": "扁肉(小碗)", "price": 9}, {"name": "蒸饺(一笼)", "price": 10}, {"name": "卤蛋+拌面", "price": 12}, {"name": "蛋炒饭", "price": 12}, {"name": "炒米粉", "price": 14}], "dish_count": 8, "cat": "noodle", "mx": 390.0, "my": 331.2}, {"name": "隆昌猪脚饭", "areas": ["隆昌路"], "price_min": 22, "price_max": 26, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🐷", "rep_dishes": [{"name": "猪脚面", "price": 22}, {"name": "叉烧饭", "price": 24}, {"name": "猪脚饭(单人)", "price": 26}, {"name": "烧鸭饭", "price": 26}], "dish_count": 4, "cat": "noodle", "mx": 398.3, "my": 305.1}, {"name": "张亮麻辣烫", "areas": ["隆昌路"], "price_min": 22, "price_max": 26, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🍲", "rep_dishes": [{"name": "麻辣拌", "price": 22}, {"name": "自选麻辣烫", "price": 25}, {"name": "骨汤麻辣烫", "price": 26}], "dish_count": 3, "cat": "hotpot", "mx": 412.2, "my": 328.7}, {"name": "鱼非鱼", "areas": ["隆昌路"], "price_min": 45, "price_max": 58, "addr": "隆昌路", "dist": "约150m", "area": "隆昌路", "emoji": "🐟", "rep_dishes": [{"name": "番茄鱼(单人份)", "price": 45}, {"name": "酸菜鱼(单人份)", "price": 48}, {"name": "水煮鱼(单人份)", "price": 48}, {"name": "烤鱼(单人份)", "price": 58}], "dish_count": 4, "cat": "hotpot", "mx": 385.4, "my": 323.3}, {"name": "早安粥铺", "areas": ["隆昌路"], "price_min": 14, "price_max": 18, "addr": "隆昌路", "dist": "约120m", "area": "隆昌路", "emoji": "🥣", "rep_dishes": [{"name": "南瓜粥+煎饼", "price": 14}, {"name": "瘦肉粥+油条", "price": 15}, {"name": "皮蛋瘦肉粥", "price": 16}, {"name": "香菇鸡肉粥", "price": 18}], "dish_count": 4, "cat": "fast", "mx": 416.9, "my": 289.4}, {"name": "天津煎饼", "areas": ["隆昌路"], "price_min": 10, "price_max": 14, "addr": "隆昌路地铁口", "dist": "约30m", "area": "隆昌路", "emoji": "🫓", "rep_dishes": [{"name": "杂粮煎饼", "price": 10}, {"name": "鸡蛋灌饼", "price": 11}, {"name": "煎饼果子(加蛋)", "price": 12}, {"name": "手抓饼(加里脊)", "price": 14}], "dish_count": 4, "cat": "fast", "mx": 411.6, "my": 353.0}, {"name": "隆昌路小吃摊", "areas": ["隆昌路"], "price_min": 5, "price_max": 15, "addr": "隆昌路地铁口", "dist": "约30m", "area": "隆昌路", "emoji": "🫓", "rep_dishes": [{"name": "淀粉肠", "price": 5}, {"name": "烤面筋(2串)", "price": 8}, {"name": "烤红薯", "price": 10}, {"name": "烤冷面(加肠)", "price": 12}, {"name": "炸串(3串)", "price": 15}], "dish_count": 5, "cat": "noodle", "mx": 367.7, "my": 306.6}, {"name": "台北卤肉饭", "areas": ["隆昌路"], "price_min": 22, "price_max": 26, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🍚", "rep_dishes": [{"name": "卤肉饭(单人)", "price": 22}, {"name": "鸡排饭", "price": 24}, {"name": "控肉饭", "price": 26}], "dish_count": 3, "cat": "rice", "mx": 431.5, "my": 304.8}, {"name": "隆昌路锅贴", "areas": ["隆昌路"], "price_min": 14, "price_max": 25, "addr": "隆昌路", "dist": "约80m", "area": "隆昌路", "emoji": "🥟", "rep_dishes": [{"name": "锅贴(8只)", "price": 14}, {"name": "牛肉粉丝汤", "price": 16}, {"name": "锅贴+牛肉汤套餐", "price": 25}], "dish_count": 3, "cat": "noodle", "mx": 390.3, "my": 353.6}, {"name": "隆昌路麻辣串", "areas": ["隆昌路"], "price_min": 18, "price_max": 20, "addr": "隆昌路", "dist": "约120m", "area": "隆昌路", "emoji": "🍢", "rep_dishes": [{"name": "关东煮(单人)", "price": 18}, {"name": "麻辣串(10串)", "price": 20}], "dish_count": 2, "cat": "fast", "mx": 370.7, "my": 273.5}, {"name": "隆昌路卤味", "areas": ["隆昌路"], "price_min": 18, "price_max": 25, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🦆", "rep_dishes": [{"name": "卤藕片+粥", "price": 18}, {"name": "卤鸭脖+饭", "price": 25}], "dish_count": 2, "cat": "rice", "mx": 454.2, "my": 329.2}, {"name": "巴比馒头", "areas": ["隆昌路"], "price_min": 3, "price_max": 4, "addr": "隆昌路", "dist": "约50m", "area": "隆昌路", "emoji": "🥟", "rep_dishes": [{"name": "巴比馒头豆浆", "price": 3}, {"name": "巴比馒头肉包", "price": 4}], "dish_count": 2, "cat": "fast", "mx": 357.0, "my": 354.3}, {"name": "全家便利店", "areas": ["隆昌路"], "price_min": 8, "price_max": 18, "addr": "隆昌路", "dist": "约80m", "area": "隆昌路", "emoji": "🍱", "rep_dishes": [{"name": "全家关东煮", "price": 8}, {"name": "全家盒饭便当", "price": 18}], "dish_count": 2, "cat": "rice", "mx": 403.0, "my": 265.1}, {"name": "罗森便利店", "areas": ["隆昌路"], "price_min": 6, "price_max": 16, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🍱", "rep_dishes": [{"name": "罗森饭团", "price": 6}, {"name": "罗森盒饭便当", "price": 16}], "dish_count": 2, "cat": "rice", "mx": 438.9, "my": 358.8}, {"name": "吉野家", "areas": ["隆昌路"], "price_min": 29, "price_max": 32, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🐂", "rep_dishes": [{"name": "吉野家牛丼", "price": 29}, {"name": "吉野家照烧鸡排饭", "price": 32}], "dish_count": 2, "cat": "rice", "mx": 325.1, "my": 324.3}, {"name": "大壶春", "areas": ["隆昌路"], "price_min": 12, "price_max": 18, "addr": "隆昌路", "dist": "约150m", "area": "隆昌路", "emoji": "🥟", "rep_dishes": [{"name": "大壶春咖喱牛肉汤", "price": 12}, {"name": "大壶春生煎", "price": 18}], "dish_count": 2, "cat": "rice", "mx": 446.7, "my": 261.3}, {"name": "四海游龙", "areas": ["隆昌路"], "price_min": 18, "price_max": 18, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🥟", "rep_dishes": [{"name": "四海游龙锅贴", "price": 18}], "dish_count": 1, "cat": "hotpot", "mx": 412.7, "my": 393.9}, {"name": "永和大王", "areas": ["隆昌路"], "price_min": 15, "price_max": 25, "addr": "隆昌路", "dist": "约150m", "area": "隆昌路", "emoji": "🥤", "rep_dishes": [{"name": "永和大王豆浆油条", "price": 15}, {"name": "永和大王卤肉饭", "price": 25}], "dish_count": 2, "cat": "rice", "mx": 336.4, "my": 280.2}, {"name": "真功夫", "areas": ["隆昌路"], "price_min": 22, "price_max": 28, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🦴", "rep_dishes": [{"name": "真功夫蒸蛋+饭", "price": 22}, {"name": "真功夫排骨饭", "price": 28}], "dish_count": 2, "cat": "rice", "mx": 472.0, "my": 299.1}, {"name": "老乡鸡", "areas": ["隆昌路"], "price_min": 28, "price_max": 32, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🐔", "rep_dishes": [{"name": "老乡鸡自选快餐", "price": 28}, {"name": "老乡鸡鸡汤+饭", "price": 32}], "dish_count": 2, "cat": "rice", "mx": 358.9, "my": 405.7}, {"name": "大米先生", "areas": ["隆昌路"], "price_min": 25, "price_max": 25, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🍚", "rep_dishes": [{"name": "大米先生自选", "price": 25}], "dish_count": 1, "cat": "fast", "mx": 363.5, "my": 232.3}, {"name": "顺旺基", "areas": ["隆昌路"], "price_min": 22, "price_max": 22, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🍱", "rep_dishes": [{"name": "顺旺基自选快餐", "price": 22}], "dish_count": 1, "cat": "fast", "mx": 489.7, "my": 351.2}, {"name": "蜀王快餐", "areas": ["隆昌路"], "price_min": 24, "price_max": 24, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🍚", "rep_dishes": [{"name": "蜀王自选快餐", "price": 24}], "dish_count": 1, "cat": "fast", "mx": 317.0, "my": 366.1}, {"name": "正新鸡排", "areas": ["隆昌路"], "price_min": 13, "price_max": 15, "addr": "隆昌路", "dist": "约100m", "area": "隆昌路", "emoji": "🍗", "rep_dishes": [{"name": "正新鸡排", "price": 13}, {"name": "正新烤鱿鱼", "price": 15}], "dish_count": 2, "cat": "rice", "mx": 420.9, "my": 227.3}, {"name": "新疆烧烤", "areas": ["隆昌路"], "price_min": 6, "price_max": 20, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🍢", "rep_dishes": [{"name": "新疆烤馕", "price": 6}, {"name": "新疆羊肉串(5串)", "price": 20}], "dish_count": 2, "cat": "fast", "mx": 466.8, "my": 413.6}, {"name": "潮汕小吃", "areas": ["隆昌路"], "price_min": 16, "price_max": 18, "addr": "隆昌路", "dist": "约180m", "area": "隆昌路", "emoji": "🦐", "rep_dishes": [{"name": "肠粉(鲜虾)", "price": 16}, {"name": "炒河粉", "price": 18}], "dish_count": 2, "cat": "noodle", "mx": 285.7, "my": 307.4}, {"name": "陕西凉皮", "areas": ["隆昌路"], "price_min": 10, "price_max": 12, "addr": "隆昌路", "dist": "约120m", "area": "隆昌路", "emoji": "🥗", "rep_dishes": [{"name": "肉夹馍", "price": 10}, {"name": "凉皮", "price": 12}], "dish_count": 2, "cat": "fast", "mx": 485.6, "my": 243.2}, {"name": "绝味鸭脖", "areas": ["隆昌路"], "price_min": 20, "price_max": 20, "addr": "隆昌路", "dist": "约150m", "area": "隆昌路", "emoji": "🦆", "rep_dishes": [{"name": "绝味鸭脖", "price": 20}], "dish_count": 1, "cat": "fast", "mx": 400.3, "my": 435.0}, {"name": "紫燕百味鸡", "areas": ["隆昌路"], "price_min": 25, "price_max": 25, "addr": "隆昌路", "dist": "约200m", "area": "隆昌路", "emoji": "🐔", "rep_dishes": [{"name": "紫燕百味鸡", "price": 25}], "dish_count": 1, "cat": "fast", "mx": 314.0, "my": 243.6}, {"name": "超级鸡车", "areas": ["隆昌路"], "price_min": 20, "price_max": 22, "addr": "隆昌路", "dist": "约80m", "area": "隆昌路", "emoji": "🍗", "rep_dishes": [{"name": "超级鸡车辛拉面", "price": 20}, {"name": "超级鸡车炸鸡", "price": 22}], "dish_count": 2, "cat": "noodle", "mx": 534.1, "my": 304.5}, {"name": "阿甘锅盔", "areas": ["隆昌路"], "price_min": 12, "price_max": 12, "addr": "隆昌路", "dist": "约80m", "area": "隆昌路", "emoji": "🫓", "rep_dishes": [{"name": "阿甘锅盔", "price": 12}], "dish_count": 1, "cat": "hotpot", "mx": 322.2, "my": 430.3}, {"name": "重庆鸡公煲", "areas": ["周家嘴路"], "price_min": 32, "price_max": 38, "addr": "周家嘴路", "dist": "约100m", "area": "周家嘴路", "emoji": "🐔", "rep_dishes": [{"name": "鸡公煲(单人)", "price": 32}, {"name": "排骨煲(单人)", "price": 35}, {"name": "鸡公煲+年糕", "price": 36}, {"name": "鸡公煲+方便面", "price": 38}], "dish_count": 4, "cat": "noodle", "mx": 365.0, "my": 450.0}, {"name": "黄焖鸡米饭", "areas": ["周家嘴路"], "price_min": 20, "price_max": 28, "addr": "周家嘴路", "dist": "约150m", "area": "周家嘴路", "emoji": "🐔", "rep_dishes": [{"name": "黄焖豆腐米饭", "price": 20}, {"name": "黄焖鸡米饭(小)", "price": 22}, {"name": "黄焖排骨米饭", "price": 26}, {"name": "黄焖鸡米饭(大)", "price": 28}], "dish_count": 4, "cat": "rice", "mx": 340.0, "my": 461.2}, {"name": "沪味面馆", "areas": ["周家嘴路"], "price_min": 18, "price_max": 28, "addr": "周家嘴路", "dist": "约180m", "area": "周家嘴路", "emoji": "🌶️", "rep_dishes": [{"name": "葱油拌面+素鸡", "price": 18}, {"name": "辣酱面", "price": 18}, {"name": "雪菜肉丝面", "price": 20}, {"name": "老上海辣肉面", "price": 24}, {"name": "大排面", "price": 26}], "dish_count": 6, "cat": "noodle", "mx": 348.3, "my": 435.1}, {"name": "柳州螺蛳粉", "areas": ["周家嘴路"], "price_min": 22, "price_max": 30, "addr": "周家嘴路", "dist": "约200m", "area": "周家嘴路", "emoji": "🍜", "rep_dishes": [{"name": "螺蛳粉(单人)", "price": 22}, {"name": "干拌螺蛳粉", "price": 24}, {"name": "螺蛳粉+炸蛋", "price": 28}, {"name": "螺蛳粉+鸭脚", "price": 30}], "dish_count": 4, "cat": "noodle", "mx": 362.2, "my": 458.7}, {"name": "东北水饺", "areas": ["周家嘴路"], "price_min": 22, "price_max": 32, "addr": "周家嘴路", "dist": "约150m", "area": "周家嘴路", "emoji": "🥟", "rep_dishes": [{"name": "水饺(15只)", "price": 22}, {"name": "地三鲜盖饭", "price": 22}, {"name": "酸菜炖粉条(单人)", "price": 26}, {"name": "猪肉炖粉条", "price": 28}, {"name": "锅包肉(单人份)", "price": 32}], "dish_count": 5, "cat": "noodle", "mx": 335.4, "my": 453.3}, {"name": "川味小馆", "areas": ["周家嘴路"], "price_min": 18, "price_max": 32, "addr": "周家嘴路", "dist": "约200m", "area": "周家嘴路", "emoji": "🌶️", "rep_dishes": [{"name": "担担面", "price": 18}, {"name": "麻婆豆腐盖饭", "price": 18}, {"name": "麻辣拌面", "price": 20}, {"name": "鱼香茄子饭", "price": 22}, {"name": "回锅肉盖饭", "price": 26}], "dish_count": 6, "cat": "noodle", "mx": 366.9, "my": 419.4}, {"name": "周家嘴路小炒", "areas": ["周家嘴路"], "price_min": 18, "price_max": 24, "addr": "周家嘴路", "dist": "约250m", "area": "周家嘴路", "emoji": "🍚", "rep_dishes": [{"name": "蛋炒饭", "price": 18}, {"name": "番茄炒蛋盖饭", "price": 18}, {"name": "扬州炒饭", "price": 20}, {"name": "青椒肉丝盖饭", "price": 22}, {"name": "宫保鸡丁盖饭", "price": 24}], "dish_count": 5, "cat": "rice", "mx": 361.6, "my": 483.0}, {"name": "老盛昌", "areas": ["周家嘴路"], "price_min": 22, "price_max": 28, "addr": "周家嘴路", "dist": "约180m", "area": "周家嘴路", "emoji": "🥟", "rep_dishes": [{"name": "老盛昌汤包", "price": 22}, {"name": "老盛昌苏州汤包", "price": 28}], "dish_count": 2, "cat": "fast", "mx": 317.7, "my": 436.6}, {"name": "吉祥馄饨", "areas": ["周家嘴路"], "price_min": 16, "price_max": 22, "addr": "周家嘴路", "dist": "约200m", "area": "周家嘴路", "emoji": "🥟", "rep_dishes": [{"name": "吉祥馄饨鲜肉小馄饨", "price": 16}, {"name": "吉祥馄饨全家福", "price": 22}], "dish_count": 2, "cat": "noodle", "mx": 381.5, "my": 434.8}, {"name": "大娘水饺", "areas": ["周家嘴路"], "price_min": 20, "price_max": 20, "addr": "周家嘴路", "dist": "约250m", "area": "周家嘴路", "emoji": "🥟", "rep_dishes": [{"name": "大娘水饺白菜猪肉", "price": 20}], "dish_count": 1, "cat": "noodle", "mx": 340.3, "my": 483.6}, {"name": "粤式小厨", "areas": ["周家嘴路"], "price_min": 22, "price_max": 26, "addr": "周家嘴路", "dist": "约200m", "area": "周家嘴路", "emoji": "🍝", "rep_dishes": [{"name": "港式奶茶+菠萝油", "price": 22}, {"name": "干炒牛河", "price": 26}], "dish_count": 2, "cat": "light", "mx": 320.7, "my": 403.5}, {"name": "隆昌烧腊", "areas": ["周家嘴路"], "price_min": 25, "price_max": 25, "addr": "周家嘴路", "dist": "约200m", "area": "周家嘴路", "emoji": "🦆", "rep_dishes": [{"name": "广式烧鸭饭", "price": 25}], "dish_count": 1, "cat": "rice", "mx": 404.2, "my": 459.2}, {"name": "北京烤鸭", "areas": ["周家嘴路"], "price_min": 32, "price_max": 32, "addr": "周家嘴路", "dist": "约250m", "area": "周家嘴路", "emoji": "🦆", "rep_dishes": [{"name": "北京烤鸭(单人)", "price": 32}], "dish_count": 1, "cat": "fast", "mx": 307.0, "my": 484.3}, {"name": "隆昌烧烤", "areas": ["周家嘴路"], "price_min": 38, "price_max": 38, "addr": "周家嘴路", "dist": "约250m", "area": "周家嘴路", "emoji": "🍢", "rep_dishes": [{"name": "烤串(单人套餐)", "price": 38}], "dish_count": 1, "cat": "fast", "mx": 353.0, "my": 395.1}, {"name": "串大侠", "areas": ["周家嘴路"], "price_min": 35, "price_max": 35, "addr": "周家嘴路", "dist": "约250m", "area": "周家嘴路", "emoji": "🍢", "rep_dishes": [{"name": "串串香(单人)", "price": 35}], "dish_count": 1, "cat": "hotpot", "mx": 388.9, "my": 488.8}, {"name": "五芳斋", "areas": ["周家嘴路"], "price_min": 12, "price_max": 22, "addr": "周家嘴路", "dist": "约200m", "area": "周家嘴路", "emoji": "🍙", "rep_dishes": [{"name": "五芳斋粽子", "price": 12}, {"name": "五芳斋大排面", "price": 22}], "dish_count": 2, "cat": "noodle", "mx": 275.1, "my": 454.3}, {"name": "桂林米粉", "areas": ["控江路"], "price_min": 20, "price_max": 24, "addr": "控江路", "dist": "约250m", "area": "控江路", "emoji": "🍜", "rep_dishes": [{"name": "桂林米粉(卤味)", "price": 20}, {"name": "酸笋米粉", "price": 22}, {"name": "叉烧米粉", "price": 22}, {"name": "锅烧米粉", "price": 24}], "dish_count": 4, "cat": "noodle", "mx": 495.0, "my": 200.0}, {"name": "武汉热干面", "areas": ["控江路"], "price_min": 16, "price_max": 22, "addr": "控江路", "dist": "约280m", "area": "控江路", "emoji": "🍜", "rep_dishes": [{"name": "热干面(单人)", "price": 16}, {"name": "三鲜豆皮", "price": 18}, {"name": "热干面+蛋酒", "price": 22}], "dish_count": 3, "cat": "noodle", "mx": 470.0, "my": 211.2}, {"name": "韩式料理", "areas": ["控江路"], "price_min": 26, "price_max": 45, "addr": "控江路", "dist": "约300m", "area": "控江路", "emoji": "🍚", "rep_dishes": [{"name": "韩式泡菜汤+饭", "price": 26}, {"name": "韩式石锅拌饭", "price": 28}, {"name": "部队锅(单人)", "price": 45}], "dish_count": 3, "cat": "rice", "mx": 478.3, "my": 185.1}, {"name": "炭火烤鱼", "areas": ["控江路"], "price_min": 48, "price_max": 48, "addr": "控江路", "dist": "约300m", "area": "控江路", "emoji": "🐟", "rep_dishes": [{"name": "炭火烤鱼(单人)", "price": 48}], "dish_count": 1, "cat": "hotpot", "mx": 492.2, "my": 208.7}, {"name": "福禄娃", "areas": ["控江路"], "price_min": 32, "price_max": 32, "addr": "控江路", "dist": "约300m", "area": "控江路", "emoji": "🌶️", "rep_dishes": [{"name": "福禄娃麻辣香锅", "price": 32}], "dish_count": 1, "cat": "hotpot", "mx": 465.4, "my": 203.3}, {"name": "顺平麻辣烫", "emoji": "🍲", "rep_dishes": [{"name": "自选麻辣烫", "price": 22}], "areas": ["顺平路"], "addr": "顺平路", "dist": "约200m", "area": "顺平路", "price_min": 22, "price_max": 35, "dish_count": 1, "cat": "hotpot", "mx": 135.0, "my": 200.0}, {"name": "顺平面馆", "emoji": "🍜", "rep_dishes": [{"name": "红烧牛肉面", "price": 18}, {"name": "葱油拌面", "price": 12}], "areas": ["顺平路"], "addr": "顺平路", "dist": "约200m", "area": "顺平路", "price_min": 12, "price_max": 22, "dish_count": 2, "cat": "noodle", "mx": 110.0, "my": 211.2}, {"name": "皖北地锅鸡", "emoji": "🐔", "rep_dishes": [{"name": "地锅鸡单人餐", "price": 38}], "areas": ["顺平路"], "addr": "顺平路", "dist": "约250m", "area": "顺平路", "price_min": 38, "price_max": 58, "dish_count": 1, "cat": "hotpot", "mx": 118.3, "my": 185.1}, {"name": "壹碗面", "emoji": "🍜", "rep_dishes": [{"name": "牛腩面", "price": 28}, {"name": "雪菜肉丝面", "price": 18}], "areas": ["隆昌路站4号口"], "addr": "隆昌路站4号口", "dist": "约350m", "area": "隆昌路站4号口", "price_min": 18, "price_max": 32, "dish_count": 2, "cat": "noodle", "mx": 465.0, "my": 380.0}, {"name": "小渝儿", "emoji": "🌶️", "rep_dishes": [{"name": "重庆小面", "price": 16}, {"name": "酸辣粉", "price": 18}], "areas": ["隆昌路站4号口"], "addr": "隆昌路站4号口", "dist": "约380m", "area": "隆昌路站4号口", "price_min": 14, "price_max": 25, "dish_count": 2, "cat": "noodle", "mx": 440.0, "my": 391.2}, {"name": "地铁口煎饼", "emoji": "🥓", "rep_dishes": [{"name": "杂粮煎饼", "price": 10}, {"name": "鸡蛋灌饼", "price": 8}], "areas": ["隆昌路站4号口"], "addr": "隆昌路站4号口", "dist": "约350m", "area": "隆昌路站4号口", "price_min": 8, "price_max": 15, "dish_count": 2, "cat": "fast", "mx": 448.3, "my": 365.1}, {"name": "地铁口烧烤", "emoji": "🍢", "rep_dishes": [{"name": "烤串单人餐", "price": 28}], "areas": ["隆昌路站4号口"], "addr": "隆昌路站4号口", "dist": "约350m", "area": "隆昌路站4号口", "price_min": 18, "price_max": 35, "dish_count": 1, "cat": "fast", "mx": 462.2, "my": 388.7}, {"name": "地铁口卤味", "emoji": "🦆", "rep_dishes": [{"name": "卤鸭脖", "price": 15}, {"name": "卤藕片", "price": 8}], "areas": ["隆昌路站4号口"], "addr": "隆昌路站4号口", "dist": "约350m", "area": "隆昌路站4号口", "price_min": 8, "price_max": 25, "dish_count": 2, "cat": "fast", "mx": 435.4, "my": 383.3}, {"name": "全家便利店·地铁", "emoji": "🏪", "rep_dishes": [{"name": "便当套餐", "price": 18}, {"name": "饭团", "price": 6}], "areas": ["隆昌路站4号口"], "addr": "隆昌路站4号口", "dist": "约350m", "area": "隆昌路站4号口", "price_min": 6, "price_max": 22, "dish_count": 2, "cat": "rice", "mx": 466.9, "my": 349.4}, {"name": "泸溪河", "emoji": "🥮", "rep_dishes": [{"name": "桃酥", "price": 12}, {"name": "泡芙", "price": 15}], "areas": ["商场内"], "addr": "B1层 泸溪河", "dist": "商场内", "area": "商场内", "price_min": 10, "price_max": 30, "dish_count": 2, "cat": "fast", "mx": 434.1, "my": 264.5}, {"name": "KOI Thé", "emoji": "🧋", "rep_dishes": [{"name": "黄金珍奶", "price": 22}, {"name": "芋圆奶茶", "price": 25}], "areas": ["商场内"], "addr": "B1层 KOI", "dist": "商场内", "area": "商场内", "price_min": 18, "price_max": 28, "dish_count": 2, "cat": "light", "mx": 222.2, "my": 390.3}, {"name": "桂源铺", "emoji": "🧋", "rep_dishes": [{"name": "丝袜奶茶", "price": 16}, {"name": "冻柠茶", "price": 14}], "areas": ["商场内"], "addr": "B1层 桂源铺", "dist": "商场内", "area": "商场内", "price_min": 14, "price_max": 20, "dish_count": 2, "cat": "light", "mx": 269.6, "my": 148.5}, {"name": "沙县小吃（顺平）", "emoji": "🍜", "rep_dishes": [{"name": "鸭腿饭", "price": 15}, {"name": "蒸饺", "price": 8}, {"name": "扁肉", "price": 8}], "area": "顺平路", "addr": "顺平路", "dist": "约200m", "price_min": 8, "price_max": 20, "dish_count": 3, "cat": "fast", "mx": 132.2, "my": 208.7}, {"name": "巴比馒头（顺平）", "emoji": "🥖", "rep_dishes": [{"name": "鲜肉大包", "price": 3}, {"name": "豆浆", "price": 3}], "area": "顺平路", "addr": "顺平路", "dist": "约180m", "price_min": 3, "price_max": 10, "dish_count": 2, "cat": "fast", "mx": 105.4, "my": 203.3}, {"name": "兰州拉面（顺平）", "emoji": "🐂", "rep_dishes": [{"name": "牛肉拉面", "price": 22}, {"name": "炒刀削", "price": 25}], "area": "顺平路", "addr": "顺平路", "dist": "约220m", "price_min": 20, "price_max": 30, "dish_count": 2, "cat": "noodle", "mx": 136.9, "my": 169.4}, {"name": "东北饺子王", "emoji": "🥟", "rep_dishes": [{"name": "猪肉白菜饺", "price": 18}, {"name": "酸菜饺", "price": 18}], "area": "顺平路", "addr": "顺平路", "dist": "约240m", "price_min": 16, "price_max": 25, "dish_count": 2, "cat": "noodle", "mx": 131.6, "my": 233.0}, {"name": "正新鸡排（顺平）", "emoji": "🐔", "rep_dishes": [{"name": "鸡排", "price": 12}, {"name": "烤串", "price": 10}], "area": "顺平路", "addr": "顺平路", "dist": "约260m", "price_min": 10, "price_max": 20, "dish_count": 2, "cat": "fast", "mx": 87.7, "my": 186.6}, {"name": "四川小炒", "emoji": "🌶️", "rep_dishes": [{"name": "回锅肉饭", "price": 22}, {"name": "鱼香肉丝饭", "price": 20}], "area": "顺平路", "addr": "顺平路", "dist": "约270m", "price_min": 18, "price_max": 28, "dish_count": 2, "cat": "rice", "mx": 151.5, "my": 184.8}, {"name": "湘味人家", "emoji": "🌶️", "rep_dishes": [{"name": "小炒肉饭", "price": 24}, {"name": "剁椒鱼头饭", "price": 32}], "area": "顺平路", "addr": "顺平路", "dist": "约280m", "price_min": 22, "price_max": 35, "dish_count": 2, "cat": "rice", "mx": 110.3, "my": 233.6}, {"name": "齐鲁人家", "emoji": "🍜", "rep_dishes": [{"name": "山东杂粮煎饼", "price": 8}, {"name": "韭菜盒子", "price": 6}], "area": "顺平路", "addr": "顺平路", "dist": "约250m", "price_min": 6, "price_max": 15, "dish_count": 2, "cat": "fast", "mx": 90.7, "my": 153.5}, {"name": "顺平烤鱼", "emoji": "🐟", "rep_dishes": [{"name": "烤鱼单人份", "price": 48}], "area": "顺平路", "addr": "顺平路", "dist": "约300m", "price_min": 48, "price_max": 68, "dish_count": 1, "cat": "hotpot", "mx": 174.2, "my": 209.2}, {"name": "顺平黄焖鸡", "emoji": "🐔", "rep_dishes": [{"name": "黄焖鸡米饭", "price": 22}, {"name": "黄焖排骨", "price": 25}], "area": "顺平路", "addr": "顺平路", "dist": "约280m", "price_min": 20, "price_max": 28, "dish_count": 2, "cat": "rice", "mx": 77.0, "my": 234.3}, {"name": "太二酸菜鱼", "emoji": "🐟", "rep_dishes": [{"name": "老坛酸菜鱼", "price": 88}], "area": "商场内", "addr": "商场内", "dist": "商场内", "price_min": 68, "price_max": 128, "dish_count": 1, "cat": "hotpot", "mx": 418.4, "my": 344.9}, {"name": "西贝莜面村", "emoji": "🍜", "rep_dishes": [{"name": "牛肉莜面", "price": 42}, {"name": "烤羊排", "price": 68}], "area": "商场内", "addr": "商场内", "dist": "商场内", "price_min": 32, "price_max": 88, "dish_count": 2, "cat": "noodle", "mx": 172.7, "my": 325.0}, {"name": "好特卖", "emoji": "🛍️", "rep_dishes": [{"name": "零食便餐", "price": 15}], "area": "商场内", "addr": "B1层 好特卖", "dist": "商场内", "price_min": 5, "price_max": 30, "dish_count": 1, "cat": "fast", "mx": 358.8, "my": 136.6}, {"name": "名创优品", "emoji": "🏪", "rep_dishes": [], "area": "商场内", "addr": "商场内", "dist": "商场内", "price_min": 0, "price_max": 0, "dish_count": 0, "cat": "light", "mx": 367.7, "my": 419.4}];
+
+var curFilter='all', curArea='all', spinning=false;
+var ph=document.getElementById('placeholder'), rs=document.getElementById('resultShow');
+var rd=document.getElementById('resultDish'), rsh=document.getElementById('resultShop');
+var rp=document.getElementById('resultPrice'), ra=document.getElementById('resultArea');
+var rds=document.getElementById('resultDishes'), grid=document.getElementById('dishGrid');
+var cnt=document.getElementById('shopCount'), btn=document.getElementById('lotteryBtn');
+var cc=document.getElementById('confettiContainer');
+
+function filtered(){
+  var f=curFilter==='all'?shops:shops.filter(function(s){return s.cat===curFilter});
+  if(curArea!=='all') f=f.filter(function(s){return s.area===curArea});
+  return f;
+}
+
+function renderGrid(){
+  var f=filtered();
+  cnt.textContent=f.length+' 家店';
+  var h='';
+  for(var i=0;i<f.length;i++){
+    var s=f[i], d=s.rep_dishes||[], dp=d.map(function(x){return x.name+(x.price?' ¥'+x.price:'')}).join('、');
+    h+='<div class="dish-item" data-idx="'+i+'"><div class="i-name"><span class="i-tag" style="background:'+(areaColor(s.area)||'#666')+'"></span>'+s.emoji+' '+s.name+'</div><div class="i-addr">'+s.addr+' · '+s.dist+'</div><div class="i-dishes">'+dp+'</div></div>';
+  }
+  grid.innerHTML=h;
+  [].slice.call(grid.children).forEach(function(el){
+    el.addEventListener('click',function(){
+      var f=filtered(), idx=+this.dataset.idx;
+      if(idx<f.length) showResult(f[idx]);
+      else pickOne();
+    });
+  });
+}
+
+function areaColor(a){
+  var m={'商场内':'#ff6b35','顺平路':'#4ecdc4','隆昌路':'#a78bfa','隆昌路站4号口':'#fb923c','周家嘴路':'#34d399','控江路':'#f472b6'};
+  return m[a]||'#666';
+}
+
+function showResult(s){
+  ph.style.display='none'; rs.classList.add('v');
+  rd.textContent=s.emoji+' '+s.name;
+  rsh.innerHTML=s.name+' <span class="tag">'+s.dist+'</span>';
+  rp.textContent='¥'+(s.price_min||'?')+' ~ ¥'+(s.price_max||'?');
+  ra.textContent='📍 '+s.area+' · '+s.addr;
+  var d=s.rep_dishes||[], dp=d.map(function(x){return '<span>'+x.name+(x.price?' ¥'+x.price:'')+'</span>'}).join('');
+  rds.innerHTML=dp?'代表菜品: '+dp:'';
+}
+
+function pickOne(){
+  if(spinning) return;
+  var f=filtered();
+  if(!f.length){alert('没有符合条件的店铺！');return}
+  spinning=true; btn.disabled=true;
+  btn.innerHTML='<span class="bi">🎰</span><span>转起来...</span>';
+  document.getElementById('lotteryCard').classList.add('spinning');
+  var c=0, n=10+Math.random()*8|0, iv=70+Math.random()*30|0;
+  var si=setInterval(function(){
+    var r=f[Math.random()*f.length|0];
+    showResult(r); c++;
+    if(c>=n){
+      clearInterval(si);
+      var r2=f[Math.random()*f.length|0];
+      showResult(r2);
+      document.getElementById('lotteryCard').classList.remove('spinning');
+      spinning=false; btn.disabled=false;
+      btn.innerHTML='<span class="bi">🎲</span><span>再抽一签！</span>';
+      confetti();
+    }
+  },iv);
+}
+
+function confetti(){
+  var cs=['#ff6b35','#ffc832','#ff4d6d','#4ecdc4','#a78bfa','#fb923c','#34d399','#f472b6'];
+  cc.innerHTML='';
+  for(var i=0;i<60;i++){
+    var p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=cs[Math.random()*cs.length|0];
+    var sz=4+Math.random()*10|0;
+    p.style.width=sz+'px'; p.style.height=sz+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';
+    p.style.animationDuration=1.5+Math.random()*2.5+'s';
+    p.style.animationDelay=Math.random()*0.8+'s';
+    cc.appendChild(p);
+  }
+  setTimeout(function(){cc.innerHTML=''},5000);
+}
+
+document.getElementById('filters').addEventListener('click',function(e){
+  var t=e.target.closest('.filter-tag');
+  if(!t) return;
+  [].slice.call(this.children).forEach(function(x){x.classList.remove('active')});
+  t.classList.add('active');
+  curFilter=t.dataset.filter;
+  renderGrid();
+});
+
+document.getElementById('areaFilters').addEventListener('click',function(e){
+  var t=e.target.closest('.area-tag');
+  if(!t) return;
+  [].slice.call(this.children).forEach(function(x){x.classList.remove('active')});
+  t.classList.add('active');
+  curArea=t.dataset.area;
+  renderGrid();
+});
+
+btn.addEventListener('click',pickOne);
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'&&(e.key===' '||e.code==='Space')){
+    e.preventDefault(); pickOne();
+  }
+});
+renderGrid();
+</script>
+</body>
+</html>
